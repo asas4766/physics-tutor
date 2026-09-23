@@ -4,7 +4,7 @@ import requests
 import json
 import os
 
-load_dotenv()  # reads GROQ_API_KEY from a .env file in this folder, if present
+load_dotenv()  # reads GROQ_API_KEY from a .env file in this folder
 
 app = Flask(__name__)
 
