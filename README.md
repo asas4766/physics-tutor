@@ -1,4 +1,4 @@
-# Electrodynaimcs Tutor
+# Griffiths Tutor
 
 A Flask chat UI running the method-selection / physical-interpretation
 coaching prompt, backed by Groq's free API instead of a local model.
@@ -66,6 +66,73 @@ study session needs. If you hit a rate limit, the app shows the error
 Groq returns (including a 429 status) rather than failing silently —
 check https://console.groq.com/docs/rate-limits for current numbers,
 since providers adjust these without much notice.
+
+## Deploying so classmates can use it
+
+Right now this only runs on your machine. To share it, put it on
+Render's free tier (Railway and Fly.io no longer have real free
+tiers as of 2026, Render still does).
+
+1. **Turn this folder into a git repo, if you haven't already**
+   ```bash
+   git init
+   git add .
+   git commit -m "Griffiths tutor"
+   ```
+   `.gitignore` already excludes `.env`, so your API key stays local
+   and never gets committed.
+
+2. **Push it to GitHub**
+   Create a new (can be private) repo on github.com, then:
+   ```bash
+   git remote add origin https://github.com/your-username/your-repo.git
+   git branch -M main
+   git push -u origin main
+   ```
+
+3. **Create a Render account and new Web Service**
+   At [render.com](https://render.com), New → Web Service → connect
+   your GitHub repo. Render auto-detects Python from
+   `requirements.txt`. Set:
+   - **Build command:** `pip install -r requirements.txt`
+   - **Start command:** `gunicorn app:app` (already in the `Procfile`,
+     Render should pick it up automatically)
+   - **Instance type:** Free
+
+4. **Add your API key as an environment variable on Render**
+   In the service's Environment tab, add `GROQ_API_KEY` with your
+   real key. This is separate from your local `.env` file — Render
+   never sees that file since it's gitignored.
+
+5. **Deploy**
+   Render builds and gives you a public URL like
+   `your-app.onrender.com`. Share that link with classmates.
+
+**Things to know about the free tier:**
+- The service sleeps after ~15 minutes of no traffic. The first
+  request after that takes 30-50 seconds to wake it back up — normal,
+  not a bug.
+- Everyone sharing the link shares your one Groq API key and its
+  rate limit (roughly 30 requests/min, 1,000/day). Fine for a study
+  group; if it becomes a bottleneck, each person could set up their
+  own free Groq key instead.
+- Any time you push a new commit to `main`, Render redeploys
+  automatically.
+
+## Mobile support
+
+The chat UI is optimized for phones as well as desktop:
+- Layout adapts to the actual visible viewport, including when the
+  on-screen keyboard is open (the input bar stays visible above it
+  rather than getting covered — a common mobile web bug).
+- Input font is 16px to stop iOS Safari's auto-zoom-on-focus.
+- Safe-area padding respects notches and the home indicator on iPhones.
+- Buttons meet the 44px minimum touch-target size.
+- **Add to Home Screen** works on both iOS and Android: open the
+  deployed URL in the browser, then use Share → Add to Home Screen
+  (iOS) or the browser menu → Add to Home Screen / Install app
+  (Android/Chrome). It'll launch full-screen with an app icon, no
+  browser chrome.
 
 ## Notes
 
