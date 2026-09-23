@@ -1,4 +1,4 @@
-# ELectrodynaimcs Tutor
+# Electrodynaimcs Tutor
 
 A Flask chat UI running the method-selection / physical-interpretation
 coaching prompt, backed by Groq's free API instead of a local model.
