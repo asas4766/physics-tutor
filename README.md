@@ -1,5 +1,8 @@
 # Griffiths Tutor
 
+**Live demo:** _add your Railway URL here once deployed (see
+"Deploying so others can use it" below)_
+
 A Flask chat UI running the method-selection / physical-interpretation
 coaching prompt, backed by Groq's free API instead of a local model.
 
@@ -67,6 +70,59 @@ Groq returns (including a 429 status) rather than failing silently —
 check https://console.groq.com/docs/rate-limits for current numbers,
 since providers adjust these without much notice.
 
+## Deploying so others can use it
+
+Right now this only runs on your machine. To share it, deploy on
+**Railway**, which doesn't require a credit card to start (unlike
+Render, which does card verification even on its free tier; Fly.io
+removed its free tier entirely).
+
+1. **Turn this folder into a git repo, if you haven't already**
+   ```bash
+   git init
+   git add .
+   git commit -m "Griffiths tutor"
+   ```
+   `.gitignore` already excludes `.env`, so your API key stays local
+   and never gets committed.
+
+2. **Push it to GitHub**
+   Create a new (can be private) repo on github.com, then:
+   ```bash
+   git remote add origin https://github.com/your-username/your-repo.git
+   git branch -M main
+   git push -u origin main
+   ```
+
+3. **Create a Railway project**
+   At [railway.com](https://railway.com), sign up (no card required),
+   New Project → Deploy from GitHub repo → select this repo. Railway
+   reads `requirements.txt` and the `Procfile` automatically.
+
+4. **Add your API key as an environment variable on Railway**
+   In the service's Variables tab, add `GROQ_API_KEY` with your real
+   key. This is separate from your local `.env` file — Railway never
+   sees that file since it's gitignored.
+
+5. **Generate a public domain**
+   Under the service's Settings → Networking, click "Generate Domain"
+   to get a public URL like `your-app.up.railway.app`. Share that link.
+
+**Things to know about Railway's free trial:**
+- You get $5 in usage credit over your first 30 days, no card needed.
+  A small Flask app like this uses well under $1/month in resources,
+  so the trial comfortably covers casual use.
+- After 30 days (or if the credit runs out), Railway asks for a
+  payment method to continue — at that point it's roughly $1/month
+  minimum. There's no way around eventually needing a card if you
+  want this to keep running indefinitely; the trial just buys you
+  card-free time now.
+- Everyone using the link shares your one Groq API key and its rate
+  limit (roughly 30 requests/min, 1,000/day) — fine for casual/small
+  group use.
+- Any time you push a new commit to `main`, Railway redeploys
+  automatically.
+
 ## Mobile support
 
 The chat UI is optimized for phones as well as desktop:
@@ -76,8 +132,9 @@ The chat UI is optimized for phones as well as desktop:
 - Input font is 16px to stop iOS Safari's auto-zoom-on-focus.
 - Safe-area padding respects notches and the home indicator on iPhones.
 - Buttons meet the 44px minimum touch-target size.
-- **Add to Home Screen** works on both iOS and Android: open the
-  deployed URL in the browser, then use Share → Add to Home Screen
+- **Add to Home Screen** works on both iOS and Android once this is
+  running somewhere reachable (locally on your network, or deployed):
+  open the URL in the browser, then use Share → Add to Home Screen
   (iOS) or the browser menu → Add to Home Screen / Install app
   (Android/Chrome). It'll launch full-screen with an app icon, no
   browser chrome.
@@ -99,9 +156,3 @@ The chat UI is optimized for phones as well as desktop:
   and include it as an `image_url` block in that message's `content`
   array — the backend passes `messages` through mostly as-is, so this
   is a small, contained change.
-- If you ever want to go back to fully local/offline (e.g. no
-  internet, or privacy-sensitive use), the previous Ollama-based
-  version of `app.py` just needs `OLLAMA_URL` pointed at
-  `http://localhost:11434/api/chat` and the request/response format
-  swapped back — ask if you want that version restored alongside this
-  one.
